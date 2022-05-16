@@ -226,6 +226,7 @@ void RpcPress::sync_client() {
     } else if (MAX_QUEUE_SIZE > 2000) {
         MAX_QUEUE_SIZE = 2000;
     }
+    // test
     timeq.push_back(butil::gettimeofday_us());
     while (!_stop) {
         brpc::Controller* cntl = new brpc::Controller;
