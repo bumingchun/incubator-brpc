@@ -40,7 +40,7 @@ void InfoThread::run() {
     while (!_stop) {
         int64_t end_time = 0;
         while (!_stop &&
-               (end_time = butil::gettimeofday_us()) < start_time + 1000000L) {
+               (end_time = butil::gettimeofday_us()) < start_time + 10000L) {
             BAIDU_SCOPED_LOCK(_mutex);
             if (!_stop) {
                 timespec ts = butil::microseconds_to_timespec(end_time);
@@ -53,12 +53,15 @@ void InfoThread::run() {
         struct tm lt;
         strftime(buf, sizeof(buf), "%Y/%m/%d-%H:%M:%S",
                  localtime_r(&tm_s, &lt));
+        // ms精度
+        int64_t time_ms = (start_time % 1000000L) / 1000L;         
 
         const int64_t cur_sent_count = _options.sent_count->get_value();
         const int64_t cur_succ_count = _options.latency_recorder->count();
         const int64_t cur_error_count = _options.error_count->get_value();
-        printf("%s\tsent:%-10dsuccess:%-10derror:%-6dtotal_error:%-10lldtotal_sent:%-10lld\n",
+        printf("%s.%ld\tsent:%-10dsuccess:%-10derror:%-6dtotal_error:%-10lldtotal_sent:%-10lld\n",
                buf,
+               time_ms,
                (int)(cur_sent_count - last_sent_count),
                (int)(cur_succ_count - last_succ_count),
                (int)(cur_error_count - last_error_count),
@@ -68,30 +71,30 @@ void InfoThread::run() {
         last_succ_count = cur_succ_count;
         last_error_count = cur_error_count;
 
-        if (_stop || ++i % 10 == 0) {
-            printf("[Latency]\n"
-                   "  avg     %10lld us\n"
-                   "  50%%     %10lld us\n"
-                   "  70%%     %10lld us\n"
-                   "  90%%     %10lld us\n"
-                   "  95%%     %10lld us\n"
-                   "  97%%     %10lld us\n"
-                   "  99%%     %10lld us\n"
-                   "  99.9%%   %10lld us\n"
-                   "  99.99%%  %10lld us\n"
-                   "  max     %10lld us\n",
-                   (long long)_options.latency_recorder->latency(),
-                   (long long)_options.latency_recorder->latency_percentile(0.5),
-                   (long long)_options.latency_recorder->latency_percentile(0.7),
-                   (long long)_options.latency_recorder->latency_percentile(0.9),
-                   (long long)_options.latency_recorder->latency_percentile(0.95),
-                   (long long)_options.latency_recorder->latency_percentile(0.97),
-                   (long long)_options.latency_recorder->latency_percentile(0.99),
-                   (long long)_options.latency_recorder->latency_percentile(0.999),
-                   (long long)_options.latency_recorder->latency_percentile(0.9999),
-                   (long long)_options.latency_recorder->max_latency());
-        }
-    }
+    //     if (_stop || ++i % 10 == 0) {
+    //         printf("[Latency]\n"
+    //                "  avg     %10lld us\n"
+    //                "  50%%     %10lld us\n"
+    //                "  70%%     %10lld us\n"
+    //                "  90%%     %10lld us\n"
+    //                "  95%%     %10lld us\n"
+    //                "  97%%     %10lld us\n"
+    //                "  99%%     %10lld us\n"
+    //                "  99.9%%   %10lld us\n"
+    //                "  99.99%%  %10lld us\n"
+    //                "  max     %10lld us\n",
+    //                (long long)_options.latency_recorder->latency(),
+    //                (long long)_options.latency_recorder->latency_percentile(0.5),
+    //                (long long)_options.latency_recorder->latency_percentile(0.7),
+    //                (long long)_options.latency_recorder->latency_percentile(0.9),
+    //                (long long)_options.latency_recorder->latency_percentile(0.95),
+    //                (long long)_options.latency_recorder->latency_percentile(0.97),
+    //                (long long)_options.latency_recorder->latency_percentile(0.99),
+    //                (long long)_options.latency_recorder->latency_percentile(0.999),
+    //                (long long)_options.latency_recorder->latency_percentile(0.9999),
+    //                (long long)_options.latency_recorder->max_latency());
+    //     }
+    // }
 }
 
 static void* run_info_thread(void* arg) {

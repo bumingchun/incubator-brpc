@@ -46,18 +46,21 @@ public:
         // This object helps you to call done->Run() in RAII style. If you need
         // to process the request asynchronously, pass done_guard.release().
         brpc::ClosureGuard done_guard(done);
-
+        int sum = 0;
+        for(int i = 0; i < 500000; i++){
+            sum = (sum + i) % 10;
+        }
         brpc::Controller* cntl =
             static_cast<brpc::Controller*>(cntl_base);
 
         // The purpose of following logs is to help you to understand
         // how clients interact with servers more intuitively. You should 
         // remove these logs in performance-sensitive servers.
-        LOG(INFO) << "Received request[log_id=" << cntl->log_id() 
-                  << "] from " << cntl->remote_side() 
-                  << " to " << cntl->local_side()
-                  << ": " << request->message()
-                  << " (attached=" << cntl->request_attachment() << ")";
+        // LOG(INFO) << "Received request[log_id=" << cntl->log_id() 
+        //           << "] from " << cntl->remote_side() 
+        //           << " to " << cntl->local_side()
+        //           << ": " << request->message()
+        //           << " (attached=" << cntl->request_attachment() << ")";
 
         // Fill response.
         response->set_message(request->message());

@@ -243,7 +243,10 @@ void RpcPress::sync_client() {
         const brpc::CallId cid1 = cntl->call_id();
         _pbrpc_client->call_method(cntl, request, response, done);
         _sent_count << 1;
-
+        // 随机sleep，模拟抖动
+        if (rand() % 4000 < 1) {
+            usleep(1000);
+        }
         if (_options.test_req_rate <= 0) { 
             brpc::Join(cid1);
         } else {
