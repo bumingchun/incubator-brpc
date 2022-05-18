@@ -94,7 +94,7 @@ void InfoThread::run() {
     //                (long long)_options.latency_recorder->latency_percentile(0.9999),
     //                (long long)_options.latency_recorder->max_latency());
     //     }
-    // }
+    }
 }
 
 static void* run_info_thread(void* arg) {
